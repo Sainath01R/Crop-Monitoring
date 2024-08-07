@@ -1,7 +1,7 @@
 import { SatelliteImage as TSatelliteImage } from "../api/satelliteImage/SatelliteImage";
 
-export const SATELLITEIMAGE_TITLE_FIELD = "id";
+export const SATELLITEIMAGE_TITLE_FIELD = "imageUrl";
 
 export const SatelliteImageTitle = (record: TSatelliteImage): string => {
-  return record.id?.toString() || String(record.id);
+  return record.imageUrl?.toString() || String(record.id);
 };

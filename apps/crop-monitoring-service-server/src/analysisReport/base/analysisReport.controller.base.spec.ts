@@ -20,23 +20,27 @@ const existingId = "existingId";
 const CREATE_INPUT = {
   createdAt: new Date(),
   id: "exampleId",
+  reportDate: new Date(),
   updatedAt: new Date(),
 };
 const CREATE_RESULT = {
   createdAt: new Date(),
   id: "exampleId",
+  reportDate: new Date(),
   updatedAt: new Date(),
 };
 const FIND_MANY_RESULT = [
   {
     createdAt: new Date(),
     id: "exampleId",
+    reportDate: new Date(),
     updatedAt: new Date(),
   },
 ];
 const FIND_ONE_RESULT = {
   createdAt: new Date(),
   id: "exampleId",
+  reportDate: new Date(),
   updatedAt: new Date(),
 };
 
@@ -123,6 +127,7 @@ describe("AnalysisReport", () => {
       .expect({
         ...CREATE_RESULT,
         createdAt: CREATE_RESULT.createdAt.toISOString(),
+        reportDate: CREATE_RESULT.reportDate.toISOString(),
         updatedAt: CREATE_RESULT.updatedAt.toISOString(),
       });
   });
@@ -135,6 +140,7 @@ describe("AnalysisReport", () => {
         {
           ...FIND_MANY_RESULT[0],
           createdAt: FIND_MANY_RESULT[0].createdAt.toISOString(),
+          reportDate: FIND_MANY_RESULT[0].reportDate.toISOString(),
           updatedAt: FIND_MANY_RESULT[0].updatedAt.toISOString(),
         },
       ]);
@@ -158,6 +164,7 @@ describe("AnalysisReport", () => {
       .expect({
         ...FIND_ONE_RESULT,
         createdAt: FIND_ONE_RESULT.createdAt.toISOString(),
+        reportDate: FIND_ONE_RESULT.reportDate.toISOString(),
         updatedAt: FIND_ONE_RESULT.updatedAt.toISOString(),
       });
   });
@@ -171,6 +178,7 @@ describe("AnalysisReport", () => {
       .expect({
         ...CREATE_RESULT,
         createdAt: CREATE_RESULT.createdAt.toISOString(),
+        reportDate: CREATE_RESULT.reportDate.toISOString(),
         updatedAt: CREATE_RESULT.updatedAt.toISOString(),
       })
       .then(function () {

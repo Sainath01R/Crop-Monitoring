@@ -9,5 +9,67 @@ https://docs.amplication.com/how-to/custom-code
 
 ------------------------------------------------------------------------------
   */
-class SatelliteImageCreateInput {}
+import { InputType, Field } from "@nestjs/graphql";
+import { ApiProperty } from "@nestjs/swagger";
+import { AnalysisReportCreateNestedManyWithoutSatelliteImagesInput } from "./AnalysisReportCreateNestedManyWithoutSatelliteImagesInput";
+import {
+  ValidateNested,
+  IsOptional,
+  IsDate,
+  IsString,
+  MaxLength,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { FieldModelWhereUniqueInput } from "../../fieldModel/base/FieldModelWhereUniqueInput";
+
+@InputType()
+class SatelliteImageCreateInput {
+  @ApiProperty({
+    required: false,
+    type: () => AnalysisReportCreateNestedManyWithoutSatelliteImagesInput,
+  })
+  @ValidateNested()
+  @Type(() => AnalysisReportCreateNestedManyWithoutSatelliteImagesInput)
+  @IsOptional()
+  @Field(() => AnalysisReportCreateNestedManyWithoutSatelliteImagesInput, {
+    nullable: true,
+  })
+  analysisReports?: AnalysisReportCreateNestedManyWithoutSatelliteImagesInput;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  @Field(() => Date, {
+    nullable: true,
+  })
+  dateCaptured?: Date | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => FieldModelWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => FieldModelWhereUniqueInput)
+  @IsOptional()
+  @Field(() => FieldModelWhereUniqueInput, {
+    nullable: true,
+  })
+  fieldModel?: FieldModelWhereUniqueInput | null;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  imageUrl?: string | null;
+}
+
 export { SatelliteImageCreateInput as SatelliteImageCreateInput };

@@ -13,16 +13,35 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { AnalysisReport } from "./AnalysisReport";
 import { AnalysisReportCountArgs } from "./AnalysisReportCountArgs";
 import { AnalysisReportFindManyArgs } from "./AnalysisReportFindManyArgs";
 import { AnalysisReportFindUniqueArgs } from "./AnalysisReportFindUniqueArgs";
+import { CreateAnalysisReportArgs } from "./CreateAnalysisReportArgs";
+import { UpdateAnalysisReportArgs } from "./UpdateAnalysisReportArgs";
 import { DeleteAnalysisReportArgs } from "./DeleteAnalysisReportArgs";
+import { SatelliteImage } from "../../satelliteImage/base/SatelliteImage";
 import { AnalysisReportService } from "../analysisReport.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => AnalysisReport)
 export class AnalysisReportResolverBase {
-  constructor(protected readonly service: AnalysisReportService) {}
+  constructor(
+    protected readonly service: AnalysisReportService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "read",
+    possession: "any",
+  })
   async _analysisReportsMeta(
     @graphql.Args() args: AnalysisReportCountArgs
   ): Promise<MetaQueryPayload> {
@@ -32,14 +51,26 @@ export class AnalysisReportResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [AnalysisReport])
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "read",
+    possession: "any",
+  })
   async analysisReports(
     @graphql.Args() args: AnalysisReportFindManyArgs
   ): Promise<AnalysisReport[]> {
     return this.service.analysisReports(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => AnalysisReport, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "read",
+    possession: "own",
+  })
   async analysisReport(
     @graphql.Args() args: AnalysisReportFindUniqueArgs
   ): Promise<AnalysisReport | null> {
@@ -50,7 +81,69 @@ export class AnalysisReportResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => AnalysisReport)
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "create",
+    possession: "any",
+  })
+  async createAnalysisReport(
+    @graphql.Args() args: CreateAnalysisReportArgs
+  ): Promise<AnalysisReport> {
+    return await this.service.createAnalysisReport({
+      ...args,
+      data: {
+        ...args.data,
+
+        satelliteImage: args.data.satelliteImage
+          ? {
+              connect: args.data.satelliteImage,
+            }
+          : undefined,
+      },
+    });
+  }
+
+  @common.UseInterceptors(AclValidateRequestInterceptor)
+  @graphql.Mutation(() => AnalysisReport)
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "update",
+    possession: "any",
+  })
+  async updateAnalysisReport(
+    @graphql.Args() args: UpdateAnalysisReportArgs
+  ): Promise<AnalysisReport | null> {
+    try {
+      return await this.service.updateAnalysisReport({
+        ...args,
+        data: {
+          ...args.data,
+
+          satelliteImage: args.data.satelliteImage
+            ? {
+                connect: args.data.satelliteImage,
+              }
+            : undefined,
+        },
+      });
+    } catch (error) {
+      if (isRecordNotFoundError(error)) {
+        throw new GraphQLError(
+          `No resource was found for ${JSON.stringify(args.where)}`
+        );
+      }
+      throw error;
+    }
+  }
+
+  @graphql.Mutation(() => AnalysisReport)
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "delete",
+    possession: "any",
+  })
   async deleteAnalysisReport(
     @graphql.Args() args: DeleteAnalysisReportArgs
   ): Promise<AnalysisReport | null> {
@@ -64,5 +157,26 @@ export class AnalysisReportResolverBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @graphql.ResolveField(() => SatelliteImage, {
+    nullable: true,
+    name: "satelliteImage",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "SatelliteImage",
+    action: "read",
+    possession: "any",
+  })
+  async getSatelliteImage(
+    @graphql.Parent() parent: AnalysisReport
+  ): Promise<SatelliteImage | null> {
+    const result = await this.service.getSatelliteImage(parent.id);
+
+    if (!result) {
+      return null;
+    }
+    return result;
   }
 }

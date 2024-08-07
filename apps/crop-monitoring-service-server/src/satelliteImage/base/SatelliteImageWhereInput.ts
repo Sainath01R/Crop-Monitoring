@@ -11,12 +11,51 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { StringFilter } from "../../util/StringFilter";
+import { AnalysisReportListRelationFilter } from "../../analysisReport/base/AnalysisReportListRelationFilter";
+import { ValidateNested, IsOptional } from "class-validator";
 import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
+import { DateTimeNullableFilter } from "../../util/DateTimeNullableFilter";
+import { FieldModelWhereUniqueInput } from "../../fieldModel/base/FieldModelWhereUniqueInput";
+import { StringFilter } from "../../util/StringFilter";
+import { StringNullableFilter } from "../../util/StringNullableFilter";
 
 @InputType()
 class SatelliteImageWhereInput {
+  @ApiProperty({
+    required: false,
+    type: () => AnalysisReportListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => AnalysisReportListRelationFilter)
+  @IsOptional()
+  @Field(() => AnalysisReportListRelationFilter, {
+    nullable: true,
+  })
+  analysisReports?: AnalysisReportListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: DateTimeNullableFilter,
+  })
+  @Type(() => DateTimeNullableFilter)
+  @IsOptional()
+  @Field(() => DateTimeNullableFilter, {
+    nullable: true,
+  })
+  dateCaptured?: DateTimeNullableFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => FieldModelWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => FieldModelWhereUniqueInput)
+  @IsOptional()
+  @Field(() => FieldModelWhereUniqueInput, {
+    nullable: true,
+  })
+  fieldModel?: FieldModelWhereUniqueInput;
+
   @ApiProperty({
     required: false,
     type: StringFilter,
@@ -27,6 +66,17 @@ class SatelliteImageWhereInput {
     nullable: true,
   })
   id?: StringFilter;
+
+  @ApiProperty({
+    required: false,
+    type: StringNullableFilter,
+  })
+  @Type(() => StringNullableFilter)
+  @IsOptional()
+  @Field(() => StringNullableFilter, {
+    nullable: true,
+  })
+  imageUrl?: StringNullableFilter;
 }
 
 export { SatelliteImageWhereInput as SatelliteImageWhereInput };

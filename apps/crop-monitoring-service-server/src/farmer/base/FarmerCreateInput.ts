@@ -9,5 +9,65 @@ https://docs.amplication.com/how-to/custom-code
 
 ------------------------------------------------------------------------------
   */
-class FarmerCreateInput {}
+import { InputType, Field } from "@nestjs/graphql";
+import { ApiProperty } from "@nestjs/swagger";
+import {
+  IsString,
+  IsOptional,
+  ValidateNested,
+  MaxLength,
+} from "class-validator";
+import { FieldModelCreateNestedManyWithoutFarmersInput } from "./FieldModelCreateNestedManyWithoutFarmersInput";
+import { Type } from "class-transformer";
+
+@InputType()
+class FarmerCreateInput {
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  email?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => FieldModelCreateNestedManyWithoutFarmersInput,
+  })
+  @ValidateNested()
+  @Type(() => FieldModelCreateNestedManyWithoutFarmersInput)
+  @IsOptional()
+  @Field(() => FieldModelCreateNestedManyWithoutFarmersInput, {
+    nullable: true,
+  })
+  fields?: FieldModelCreateNestedManyWithoutFarmersInput;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  name?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  phone?: string | null;
+}
+
 export { FarmerCreateInput as FarmerCreateInput };

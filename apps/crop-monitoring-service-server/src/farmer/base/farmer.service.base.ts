@@ -10,7 +10,11 @@ https://docs.amplication.com/how-to/custom-code
 ------------------------------------------------------------------------------
   */
 import { PrismaService } from "../../prisma/prisma.service";
-import { Prisma, Farmer as PrismaFarmer } from "@prisma/client";
+import {
+  Prisma,
+  Farmer as PrismaFarmer,
+  FieldModel as PrismaFieldModel,
+} from "@prisma/client";
 
 export class FarmerServiceBase {
   constructor(protected readonly prisma: PrismaService) {}
@@ -35,5 +39,16 @@ export class FarmerServiceBase {
   }
   async deleteFarmer(args: Prisma.FarmerDeleteArgs): Promise<PrismaFarmer> {
     return this.prisma.farmer.delete(args);
+  }
+
+  async findFields(
+    parentId: string,
+    args: Prisma.FieldModelFindManyArgs
+  ): Promise<PrismaFieldModel[]> {
+    return this.prisma.farmer
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .fields(args);
   }
 }

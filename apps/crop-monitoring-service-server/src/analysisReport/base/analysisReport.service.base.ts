@@ -10,7 +10,12 @@ https://docs.amplication.com/how-to/custom-code
 ------------------------------------------------------------------------------
   */
 import { PrismaService } from "../../prisma/prisma.service";
-import { Prisma, AnalysisReport as PrismaAnalysisReport } from "@prisma/client";
+
+import {
+  Prisma,
+  AnalysisReport as PrismaAnalysisReport,
+  SatelliteImage as PrismaSatelliteImage,
+} from "@prisma/client";
 
 export class AnalysisReportServiceBase {
   constructor(protected readonly prisma: PrismaService) {}
@@ -45,5 +50,15 @@ export class AnalysisReportServiceBase {
     args: Prisma.AnalysisReportDeleteArgs
   ): Promise<PrismaAnalysisReport> {
     return this.prisma.analysisReport.delete(args);
+  }
+
+  async getSatelliteImage(
+    parentId: string
+  ): Promise<PrismaSatelliteImage | null> {
+    return this.prisma.analysisReport
+      .findUnique({
+        where: { id: parentId },
+      })
+      .satelliteImage();
   }
 }

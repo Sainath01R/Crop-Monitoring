@@ -13,7 +13,10 @@ export const FarmerList = (props: ListProps): React.ReactElement => {
     >
       <Datagrid rowClick="show">
         <DateField source="createdAt" label="Created At" />
+        <TextField label="email" source="email" />
         <TextField label="ID" source="id" />
+        <TextField label="name" source="name" />
+        <TextField label="phone" source="phone" />
         <DateField source="updatedAt" label="Updated At" />
       </Datagrid>
     </List>

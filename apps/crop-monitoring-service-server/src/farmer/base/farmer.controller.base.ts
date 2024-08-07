@@ -16,46 +16,91 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { FarmerService } from "../farmer.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { FarmerCreateInput } from "./FarmerCreateInput";
 import { Farmer } from "./Farmer";
 import { FarmerFindManyArgs } from "./FarmerFindManyArgs";
 import { FarmerWhereUniqueInput } from "./FarmerWhereUniqueInput";
 import { FarmerUpdateInput } from "./FarmerUpdateInput";
+import { FieldModelFindManyArgs } from "../../fieldModel/base/FieldModelFindManyArgs";
+import { FieldModel } from "../../fieldModel/base/FieldModel";
+import { FieldModelWhereUniqueInput } from "../../fieldModel/base/FieldModelWhereUniqueInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class FarmerControllerBase {
-  constructor(protected readonly service: FarmerService) {}
+  constructor(
+    protected readonly service: FarmerService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Farmer })
+  @nestAccessControl.UseRoles({
+    resource: "Farmer",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createFarmer(@common.Body() data: FarmerCreateInput): Promise<Farmer> {
     return await this.service.createFarmer({
       data: data,
       select: {
         createdAt: true,
+        email: true,
         id: true,
+        name: true,
+        phone: true,
         updatedAt: true,
       },
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Farmer] })
   @ApiNestedQuery(FarmerFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Farmer",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async farmers(@common.Req() request: Request): Promise<Farmer[]> {
     const args = plainToClass(FarmerFindManyArgs, request.query);
     return this.service.farmers({
       ...args,
       select: {
         createdAt: true,
+        email: true,
         id: true,
+        name: true,
+        phone: true,
         updatedAt: true,
       },
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Farmer })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Farmer",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async farmer(
     @common.Param() params: FarmerWhereUniqueInput
   ): Promise<Farmer | null> {
@@ -63,7 +108,10 @@ export class FarmerControllerBase {
       where: params,
       select: {
         createdAt: true,
+        email: true,
         id: true,
+        name: true,
+        phone: true,
         updatedAt: true,
       },
     });
@@ -75,9 +123,18 @@ export class FarmerControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Farmer })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Farmer",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateFarmer(
     @common.Param() params: FarmerWhereUniqueInput,
     @common.Body() data: FarmerUpdateInput
@@ -88,7 +145,10 @@ export class FarmerControllerBase {
         data: data,
         select: {
           createdAt: true,
+          email: true,
           id: true,
+          name: true,
+          phone: true,
           updatedAt: true,
         },
       });
@@ -105,6 +165,14 @@ export class FarmerControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Farmer })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Farmer",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteFarmer(
     @common.Param() params: FarmerWhereUniqueInput
   ): Promise<Farmer | null> {
@@ -113,7 +181,10 @@ export class FarmerControllerBase {
         where: params,
         select: {
           createdAt: true,
+          email: true,
           id: true,
+          name: true,
+          phone: true,
           updatedAt: true,
         },
       });
@@ -125,5 +196,110 @@ export class FarmerControllerBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @common.Get("/:id/fields")
+  @ApiNestedQuery(FieldModelFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "FieldModel",
+    action: "read",
+    possession: "any",
+  })
+  async findFields(
+    @common.Req() request: Request,
+    @common.Param() params: FarmerWhereUniqueInput
+  ): Promise<FieldModel[]> {
+    const query = plainToClass(FieldModelFindManyArgs, request.query);
+    const results = await this.service.findFields(params.id, {
+      ...query,
+      select: {
+        createdAt: true,
+        cropType: true,
+
+        farmer: {
+          select: {
+            id: true,
+          },
+        },
+
+        fieldName: true,
+        id: true,
+        location: true,
+        updatedAt: true,
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/fields")
+  @nestAccessControl.UseRoles({
+    resource: "Farmer",
+    action: "update",
+    possession: "any",
+  })
+  async connectFields(
+    @common.Param() params: FarmerWhereUniqueInput,
+    @common.Body() body: FieldModelWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      fields: {
+        connect: body,
+      },
+    };
+    await this.service.updateFarmer({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/fields")
+  @nestAccessControl.UseRoles({
+    resource: "Farmer",
+    action: "update",
+    possession: "any",
+  })
+  async updateFields(
+    @common.Param() params: FarmerWhereUniqueInput,
+    @common.Body() body: FieldModelWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      fields: {
+        set: body,
+      },
+    };
+    await this.service.updateFarmer({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/fields")
+  @nestAccessControl.UseRoles({
+    resource: "Farmer",
+    action: "update",
+    possession: "any",
+  })
+  async disconnectFields(
+    @common.Param() params: FarmerWhereUniqueInput,
+    @common.Body() body: FieldModelWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      fields: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateFarmer({
+      where: params,
+      data,
+      select: { id: true },
+    });
   }
 }

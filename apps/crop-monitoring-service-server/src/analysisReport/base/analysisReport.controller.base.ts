@@ -16,33 +16,77 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { AnalysisReportService } from "../analysisReport.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AnalysisReportCreateInput } from "./AnalysisReportCreateInput";
 import { AnalysisReport } from "./AnalysisReport";
 import { AnalysisReportFindManyArgs } from "./AnalysisReportFindManyArgs";
 import { AnalysisReportWhereUniqueInput } from "./AnalysisReportWhereUniqueInput";
 import { AnalysisReportUpdateInput } from "./AnalysisReportUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class AnalysisReportControllerBase {
-  constructor(protected readonly service: AnalysisReportService) {}
+  constructor(
+    protected readonly service: AnalysisReportService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: AnalysisReport })
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createAnalysisReport(
     @common.Body() data: AnalysisReportCreateInput
   ): Promise<AnalysisReport> {
     return await this.service.createAnalysisReport({
-      data: data,
+      data: {
+        ...data,
+
+        satelliteImage: data.satelliteImage
+          ? {
+              connect: data.satelliteImage,
+            }
+          : undefined,
+      },
       select: {
         createdAt: true,
+        data: true,
         id: true,
+        reportDate: true,
+
+        satelliteImage: {
+          select: {
+            id: true,
+          },
+        },
+
         updatedAt: true,
       },
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [AnalysisReport] })
   @ApiNestedQuery(AnalysisReportFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async analysisReports(
     @common.Req() request: Request
   ): Promise<AnalysisReport[]> {
@@ -51,15 +95,33 @@ export class AnalysisReportControllerBase {
       ...args,
       select: {
         createdAt: true,
+        data: true,
         id: true,
+        reportDate: true,
+
+        satelliteImage: {
+          select: {
+            id: true,
+          },
+        },
+
         updatedAt: true,
       },
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: AnalysisReport })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async analysisReport(
     @common.Param() params: AnalysisReportWhereUniqueInput
   ): Promise<AnalysisReport | null> {
@@ -67,7 +129,16 @@ export class AnalysisReportControllerBase {
       where: params,
       select: {
         createdAt: true,
+        data: true,
         id: true,
+        reportDate: true,
+
+        satelliteImage: {
+          select: {
+            id: true,
+          },
+        },
+
         updatedAt: true,
       },
     });
@@ -79,9 +150,18 @@ export class AnalysisReportControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: AnalysisReport })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateAnalysisReport(
     @common.Param() params: AnalysisReportWhereUniqueInput,
     @common.Body() data: AnalysisReportUpdateInput
@@ -89,10 +169,27 @@ export class AnalysisReportControllerBase {
     try {
       return await this.service.updateAnalysisReport({
         where: params,
-        data: data,
+        data: {
+          ...data,
+
+          satelliteImage: data.satelliteImage
+            ? {
+                connect: data.satelliteImage,
+              }
+            : undefined,
+        },
         select: {
           createdAt: true,
+          data: true,
           id: true,
+          reportDate: true,
+
+          satelliteImage: {
+            select: {
+              id: true,
+            },
+          },
+
           updatedAt: true,
         },
       });
@@ -109,6 +206,14 @@ export class AnalysisReportControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: AnalysisReport })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "AnalysisReport",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteAnalysisReport(
     @common.Param() params: AnalysisReportWhereUniqueInput
   ): Promise<AnalysisReport | null> {
@@ -117,7 +222,16 @@ export class AnalysisReportControllerBase {
         where: params,
         select: {
           createdAt: true,
+          data: true,
           id: true,
+          reportDate: true,
+
+          satelliteImage: {
+            select: {
+              id: true,
+            },
+          },
+
           updatedAt: true,
         },
       });

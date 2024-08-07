@@ -9,5 +9,65 @@ https://docs.amplication.com/how-to/custom-code
 
 ------------------------------------------------------------------------------
   */
-class FarmerUpdateInput {}
+import { InputType, Field } from "@nestjs/graphql";
+import { ApiProperty } from "@nestjs/swagger";
+import {
+  IsString,
+  IsOptional,
+  ValidateNested,
+  MaxLength,
+} from "class-validator";
+import { FieldModelUpdateManyWithoutFarmersInput } from "./FieldModelUpdateManyWithoutFarmersInput";
+import { Type } from "class-transformer";
+
+@InputType()
+class FarmerUpdateInput {
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  email?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => FieldModelUpdateManyWithoutFarmersInput,
+  })
+  @ValidateNested()
+  @Type(() => FieldModelUpdateManyWithoutFarmersInput)
+  @IsOptional()
+  @Field(() => FieldModelUpdateManyWithoutFarmersInput, {
+    nullable: true,
+  })
+  fields?: FieldModelUpdateManyWithoutFarmersInput;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  name?: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  phone?: string | null;
+}
+
 export { FarmerUpdateInput as FarmerUpdateInput };

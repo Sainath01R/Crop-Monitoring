@@ -11,8 +11,12 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsString } from "class-validator";
+import { IsDate, IsOptional, IsString, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
+import { IsJSONValue } from "../../validators";
+import { GraphQLJSON } from "graphql-type-json";
+import { JsonValue } from "type-fest";
+import { SatelliteImage } from "../../satelliteImage/base/SatelliteImage";
 
 @ObjectType()
 class AnalysisReport {
@@ -25,12 +29,42 @@ class AnalysisReport {
   createdAt!: Date;
 
   @ApiProperty({
+    required: false,
+  })
+  @IsJSONValue()
+  @IsOptional()
+  @Field(() => GraphQLJSON, {
+    nullable: true,
+  })
+  data!: JsonValue;
+
+  @ApiProperty({
     required: true,
     type: String,
   })
   @IsString()
   @Field(() => String)
   id!: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  @Field(() => Date, {
+    nullable: true,
+  })
+  reportDate!: Date | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => SatelliteImage,
+  })
+  @ValidateNested()
+  @Type(() => SatelliteImage)
+  @IsOptional()
+  satelliteImage?: SatelliteImage | null;
 
   @ApiProperty({
     required: true,

@@ -13,14 +13,18 @@ import { FarmerList } from "./farmer/FarmerList";
 import { FarmerCreate } from "./farmer/FarmerCreate";
 import { FarmerEdit } from "./farmer/FarmerEdit";
 import { FarmerShow } from "./farmer/FarmerShow";
-import { SatelliteImageList } from "./satelliteImage/SatelliteImageList";
-import { SatelliteImageCreate } from "./satelliteImage/SatelliteImageCreate";
-import { SatelliteImageEdit } from "./satelliteImage/SatelliteImageEdit";
-import { SatelliteImageShow } from "./satelliteImage/SatelliteImageShow";
 import { AnalysisReportList } from "./analysisReport/AnalysisReportList";
 import { AnalysisReportCreate } from "./analysisReport/AnalysisReportCreate";
 import { AnalysisReportEdit } from "./analysisReport/AnalysisReportEdit";
 import { AnalysisReportShow } from "./analysisReport/AnalysisReportShow";
+import { SatelliteImageList } from "./satelliteImage/SatelliteImageList";
+import { SatelliteImageCreate } from "./satelliteImage/SatelliteImageCreate";
+import { SatelliteImageEdit } from "./satelliteImage/SatelliteImageEdit";
+import { SatelliteImageShow } from "./satelliteImage/SatelliteImageShow";
+import { UserList } from "./user/UserList";
+import { UserCreate } from "./user/UserCreate";
+import { UserEdit } from "./user/UserEdit";
+import { UserShow } from "./user/UserShow";
 import { jwtAuthProvider } from "./auth-provider/ra-auth-jwt";
 
 const App = (): React.ReactElement => {
@@ -62,6 +66,13 @@ const App = (): React.ReactElement => {
           show={FarmerShow}
         />
         <Resource
+          name="AnalysisReport"
+          list={AnalysisReportList}
+          edit={AnalysisReportEdit}
+          create={AnalysisReportCreate}
+          show={AnalysisReportShow}
+        />
+        <Resource
           name="SatelliteImage"
           list={SatelliteImageList}
           edit={SatelliteImageEdit}
@@ -69,11 +80,11 @@ const App = (): React.ReactElement => {
           show={SatelliteImageShow}
         />
         <Resource
-          name="AnalysisReport"
-          list={AnalysisReportList}
-          edit={AnalysisReportEdit}
-          create={AnalysisReportCreate}
-          show={AnalysisReportShow}
+          name="User"
+          list={UserList}
+          edit={UserEdit}
+          create={UserCreate}
+          show={UserShow}
         />
       </Admin>
     </div>

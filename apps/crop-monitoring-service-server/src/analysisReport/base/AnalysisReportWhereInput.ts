@@ -11,12 +11,26 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { StringFilter } from "../../util/StringFilter";
+import { JsonFilter } from "../../util/JsonFilter";
 import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
+import { IsOptional, ValidateNested } from "class-validator";
+import { StringFilter } from "../../util/StringFilter";
+import { DateTimeNullableFilter } from "../../util/DateTimeNullableFilter";
+import { SatelliteImageWhereUniqueInput } from "../../satelliteImage/base/SatelliteImageWhereUniqueInput";
 
 @InputType()
 class AnalysisReportWhereInput {
+  @ApiProperty({
+    required: false,
+    type: JsonFilter,
+  })
+  @Type(() => JsonFilter)
+  @IsOptional()
+  @Field(() => JsonFilter, {
+    nullable: true,
+  })
+  data?: JsonFilter;
+
   @ApiProperty({
     required: false,
     type: StringFilter,
@@ -27,6 +41,29 @@ class AnalysisReportWhereInput {
     nullable: true,
   })
   id?: StringFilter;
+
+  @ApiProperty({
+    required: false,
+    type: DateTimeNullableFilter,
+  })
+  @Type(() => DateTimeNullableFilter)
+  @IsOptional()
+  @Field(() => DateTimeNullableFilter, {
+    nullable: true,
+  })
+  reportDate?: DateTimeNullableFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => SatelliteImageWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => SatelliteImageWhereUniqueInput)
+  @IsOptional()
+  @Field(() => SatelliteImageWhereUniqueInput, {
+    nullable: true,
+  })
+  satelliteImage?: SatelliteImageWhereUniqueInput;
 }
 
 export { AnalysisReportWhereInput as AnalysisReportWhereInput };

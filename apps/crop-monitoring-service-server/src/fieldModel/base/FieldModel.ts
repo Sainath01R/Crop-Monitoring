@@ -11,8 +11,21 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsString } from "class-validator";
+import {
+  IsDate,
+  IsEnum,
+  IsOptional,
+  ValidateNested,
+  IsString,
+  MaxLength,
+} from "class-validator";
 import { Type } from "class-transformer";
+import { EnumFieldModelCropType } from "./EnumFieldModelCropType";
+import { Farmer } from "../../farmer/base/Farmer";
+import { IsJSONValue } from "../../validators";
+import { GraphQLJSON } from "graphql-type-json";
+import { JsonValue } from "type-fest";
+import { SatelliteImage } from "../../satelliteImage/base/SatelliteImage";
 
 @ObjectType()
 class FieldModel {
@@ -25,12 +38,63 @@ class FieldModel {
   createdAt!: Date;
 
   @ApiProperty({
+    required: false,
+    enum: EnumFieldModelCropType,
+  })
+  @IsEnum(EnumFieldModelCropType)
+  @IsOptional()
+  @Field(() => EnumFieldModelCropType, {
+    nullable: true,
+  })
+  cropType?: "Option1" | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Farmer,
+  })
+  @ValidateNested()
+  @Type(() => Farmer)
+  @IsOptional()
+  farmer?: Farmer | null;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  fieldName!: string | null;
+
+  @ApiProperty({
     required: true,
     type: String,
   })
   @IsString()
   @Field(() => String)
   id!: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsJSONValue()
+  @IsOptional()
+  @Field(() => GraphQLJSON, {
+    nullable: true,
+  })
+  location!: JsonValue;
+
+  @ApiProperty({
+    required: false,
+    type: () => [SatelliteImage],
+  })
+  @ValidateNested()
+  @Type(() => SatelliteImage)
+  @IsOptional()
+  satelliteImages?: Array<SatelliteImage>;
 
   @ApiProperty({
     required: true,

@@ -16,48 +16,115 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { FieldModelService } from "../fieldModel.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { FieldModelCreateInput } from "./FieldModelCreateInput";
 import { FieldModel } from "./FieldModel";
 import { FieldModelFindManyArgs } from "./FieldModelFindManyArgs";
 import { FieldModelWhereUniqueInput } from "./FieldModelWhereUniqueInput";
 import { FieldModelUpdateInput } from "./FieldModelUpdateInput";
+import { SatelliteImageFindManyArgs } from "../../satelliteImage/base/SatelliteImageFindManyArgs";
+import { SatelliteImage } from "../../satelliteImage/base/SatelliteImage";
+import { SatelliteImageWhereUniqueInput } from "../../satelliteImage/base/SatelliteImageWhereUniqueInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class FieldModelControllerBase {
-  constructor(protected readonly service: FieldModelService) {}
+  constructor(
+    protected readonly service: FieldModelService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: FieldModel })
+  @nestAccessControl.UseRoles({
+    resource: "FieldModel",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createFieldModel(
     @common.Body() data: FieldModelCreateInput
   ): Promise<FieldModel> {
     return await this.service.createFieldModel({
-      data: data,
+      data: {
+        ...data,
+
+        farmer: data.farmer
+          ? {
+              connect: data.farmer,
+            }
+          : undefined,
+      },
       select: {
         createdAt: true,
+        cropType: true,
+
+        farmer: {
+          select: {
+            id: true,
+          },
+        },
+
+        fieldName: true,
         id: true,
+        location: true,
         updatedAt: true,
       },
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [FieldModel] })
   @ApiNestedQuery(FieldModelFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "FieldModel",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async fieldModels(@common.Req() request: Request): Promise<FieldModel[]> {
     const args = plainToClass(FieldModelFindManyArgs, request.query);
     return this.service.fieldModels({
       ...args,
       select: {
         createdAt: true,
+        cropType: true,
+
+        farmer: {
+          select: {
+            id: true,
+          },
+        },
+
+        fieldName: true,
         id: true,
+        location: true,
         updatedAt: true,
       },
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: FieldModel })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "FieldModel",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async fieldModel(
     @common.Param() params: FieldModelWhereUniqueInput
   ): Promise<FieldModel | null> {
@@ -65,7 +132,17 @@ export class FieldModelControllerBase {
       where: params,
       select: {
         createdAt: true,
+        cropType: true,
+
+        farmer: {
+          select: {
+            id: true,
+          },
+        },
+
+        fieldName: true,
         id: true,
+        location: true,
         updatedAt: true,
       },
     });
@@ -77,9 +154,18 @@ export class FieldModelControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: FieldModel })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "FieldModel",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateFieldModel(
     @common.Param() params: FieldModelWhereUniqueInput,
     @common.Body() data: FieldModelUpdateInput
@@ -87,10 +173,28 @@ export class FieldModelControllerBase {
     try {
       return await this.service.updateFieldModel({
         where: params,
-        data: data,
+        data: {
+          ...data,
+
+          farmer: data.farmer
+            ? {
+                connect: data.farmer,
+              }
+            : undefined,
+        },
         select: {
           createdAt: true,
+          cropType: true,
+
+          farmer: {
+            select: {
+              id: true,
+            },
+          },
+
+          fieldName: true,
           id: true,
+          location: true,
           updatedAt: true,
         },
       });
@@ -107,6 +211,14 @@ export class FieldModelControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: FieldModel })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "FieldModel",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteFieldModel(
     @common.Param() params: FieldModelWhereUniqueInput
   ): Promise<FieldModel | null> {
@@ -115,7 +227,17 @@ export class FieldModelControllerBase {
         where: params,
         select: {
           createdAt: true,
+          cropType: true,
+
+          farmer: {
+            select: {
+              id: true,
+            },
+          },
+
+          fieldName: true,
           id: true,
+          location: true,
           updatedAt: true,
         },
       });
@@ -127,5 +249,109 @@ export class FieldModelControllerBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @common.Get("/:id/satelliteImages")
+  @ApiNestedQuery(SatelliteImageFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "SatelliteImage",
+    action: "read",
+    possession: "any",
+  })
+  async findSatelliteImages(
+    @common.Req() request: Request,
+    @common.Param() params: FieldModelWhereUniqueInput
+  ): Promise<SatelliteImage[]> {
+    const query = plainToClass(SatelliteImageFindManyArgs, request.query);
+    const results = await this.service.findSatelliteImages(params.id, {
+      ...query,
+      select: {
+        createdAt: true,
+        dateCaptured: true,
+
+        fieldModel: {
+          select: {
+            id: true,
+          },
+        },
+
+        id: true,
+        imageUrl: true,
+        updatedAt: true,
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/satelliteImages")
+  @nestAccessControl.UseRoles({
+    resource: "FieldModel",
+    action: "update",
+    possession: "any",
+  })
+  async connectSatelliteImages(
+    @common.Param() params: FieldModelWhereUniqueInput,
+    @common.Body() body: SatelliteImageWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      satelliteImages: {
+        connect: body,
+      },
+    };
+    await this.service.updateFieldModel({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/satelliteImages")
+  @nestAccessControl.UseRoles({
+    resource: "FieldModel",
+    action: "update",
+    possession: "any",
+  })
+  async updateSatelliteImages(
+    @common.Param() params: FieldModelWhereUniqueInput,
+    @common.Body() body: SatelliteImageWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      satelliteImages: {
+        set: body,
+      },
+    };
+    await this.service.updateFieldModel({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/satelliteImages")
+  @nestAccessControl.UseRoles({
+    resource: "FieldModel",
+    action: "update",
+    possession: "any",
+  })
+  async disconnectSatelliteImages(
+    @common.Param() params: FieldModelWhereUniqueInput,
+    @common.Body() body: SatelliteImageWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      satelliteImages: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateFieldModel({
+      where: params,
+      data,
+      select: { id: true },
+    });
   }
 }

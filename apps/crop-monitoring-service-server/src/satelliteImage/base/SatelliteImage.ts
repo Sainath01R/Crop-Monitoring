@@ -11,11 +11,28 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsString } from "class-validator";
+import { AnalysisReport } from "../../analysisReport/base/AnalysisReport";
+import {
+  ValidateNested,
+  IsOptional,
+  IsDate,
+  IsString,
+  MaxLength,
+} from "class-validator";
 import { Type } from "class-transformer";
+import { FieldModel } from "../../fieldModel/base/FieldModel";
 
 @ObjectType()
 class SatelliteImage {
+  @ApiProperty({
+    required: false,
+    type: () => [AnalysisReport],
+  })
+  @ValidateNested()
+  @Type(() => AnalysisReport)
+  @IsOptional()
+  analysisReports?: Array<AnalysisReport>;
+
   @ApiProperty({
     required: true,
   })
@@ -25,12 +42,44 @@ class SatelliteImage {
   createdAt!: Date;
 
   @ApiProperty({
+    required: false,
+  })
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  @Field(() => Date, {
+    nullable: true,
+  })
+  dateCaptured!: Date | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => FieldModel,
+  })
+  @ValidateNested()
+  @Type(() => FieldModel)
+  @IsOptional()
+  fieldModel?: FieldModel | null;
+
+  @ApiProperty({
     required: true,
     type: String,
   })
   @IsString()
   @Field(() => String)
   id!: string;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  imageUrl!: string | null;
 
   @ApiProperty({
     required: true,

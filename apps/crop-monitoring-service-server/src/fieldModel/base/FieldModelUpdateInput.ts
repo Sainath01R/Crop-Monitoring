@@ -9,5 +9,81 @@ https://docs.amplication.com/how-to/custom-code
 
 ------------------------------------------------------------------------------
   */
-class FieldModelUpdateInput {}
+import { InputType, Field } from "@nestjs/graphql";
+import { ApiProperty } from "@nestjs/swagger";
+import { EnumFieldModelCropType } from "./EnumFieldModelCropType";
+import {
+  IsEnum,
+  IsOptional,
+  ValidateNested,
+  IsString,
+  MaxLength,
+} from "class-validator";
+import { FarmerWhereUniqueInput } from "../../farmer/base/FarmerWhereUniqueInput";
+import { Type } from "class-transformer";
+import { IsJSONValue } from "../../validators";
+import { GraphQLJSON } from "graphql-type-json";
+import { InputJsonValue } from "../../types";
+import { SatelliteImageUpdateManyWithoutFieldModelsInput } from "./SatelliteImageUpdateManyWithoutFieldModelsInput";
+
+@InputType()
+class FieldModelUpdateInput {
+  @ApiProperty({
+    required: false,
+    enum: EnumFieldModelCropType,
+  })
+  @IsEnum(EnumFieldModelCropType)
+  @IsOptional()
+  @Field(() => EnumFieldModelCropType, {
+    nullable: true,
+  })
+  cropType?: "Option1" | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => FarmerWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => FarmerWhereUniqueInput)
+  @IsOptional()
+  @Field(() => FarmerWhereUniqueInput, {
+    nullable: true,
+  })
+  farmer?: FarmerWhereUniqueInput | null;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  fieldName?: string | null;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsJSONValue()
+  @IsOptional()
+  @Field(() => GraphQLJSON, {
+    nullable: true,
+  })
+  location?: InputJsonValue;
+
+  @ApiProperty({
+    required: false,
+    type: () => SatelliteImageUpdateManyWithoutFieldModelsInput,
+  })
+  @ValidateNested()
+  @Type(() => SatelliteImageUpdateManyWithoutFieldModelsInput)
+  @IsOptional()
+  @Field(() => SatelliteImageUpdateManyWithoutFieldModelsInput, {
+    nullable: true,
+  })
+  satelliteImages?: SatelliteImageUpdateManyWithoutFieldModelsInput;
+}
+
 export { FieldModelUpdateInput as FieldModelUpdateInput };

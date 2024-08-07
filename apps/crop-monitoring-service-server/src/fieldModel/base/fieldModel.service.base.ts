@@ -10,7 +10,13 @@ https://docs.amplication.com/how-to/custom-code
 ------------------------------------------------------------------------------
   */
 import { PrismaService } from "../../prisma/prisma.service";
-import { Prisma, FieldModel as PrismaFieldModel } from "@prisma/client";
+
+import {
+  Prisma,
+  FieldModel as PrismaFieldModel,
+  SatelliteImage as PrismaSatelliteImage,
+  Farmer as PrismaFarmer,
+} from "@prisma/client";
 
 export class FieldModelServiceBase {
   constructor(protected readonly prisma: PrismaService) {}
@@ -45,5 +51,24 @@ export class FieldModelServiceBase {
     args: Prisma.FieldModelDeleteArgs
   ): Promise<PrismaFieldModel> {
     return this.prisma.fieldModel.delete(args);
+  }
+
+  async findSatelliteImages(
+    parentId: string,
+    args: Prisma.SatelliteImageFindManyArgs
+  ): Promise<PrismaSatelliteImage[]> {
+    return this.prisma.fieldModel
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .satelliteImages(args);
+  }
+
+  async getFarmer(parentId: string): Promise<PrismaFarmer | null> {
+    return this.prisma.fieldModel
+      .findUnique({
+        where: { id: parentId },
+      })
+      .farmer();
   }
 }

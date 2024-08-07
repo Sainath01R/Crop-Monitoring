@@ -11,12 +11,37 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { StringFilter } from "../../util/StringFilter";
+import { StringNullableFilter } from "../../util/StringNullableFilter";
 import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
+import { IsOptional, ValidateNested } from "class-validator";
+import { FieldModelListRelationFilter } from "../../fieldModel/base/FieldModelListRelationFilter";
+import { StringFilter } from "../../util/StringFilter";
 
 @InputType()
 class FarmerWhereInput {
+  @ApiProperty({
+    required: false,
+    type: StringNullableFilter,
+  })
+  @Type(() => StringNullableFilter)
+  @IsOptional()
+  @Field(() => StringNullableFilter, {
+    nullable: true,
+  })
+  email?: StringNullableFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => FieldModelListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => FieldModelListRelationFilter)
+  @IsOptional()
+  @Field(() => FieldModelListRelationFilter, {
+    nullable: true,
+  })
+  fields?: FieldModelListRelationFilter;
+
   @ApiProperty({
     required: false,
     type: StringFilter,
@@ -27,6 +52,28 @@ class FarmerWhereInput {
     nullable: true,
   })
   id?: StringFilter;
+
+  @ApiProperty({
+    required: false,
+    type: StringNullableFilter,
+  })
+  @Type(() => StringNullableFilter)
+  @IsOptional()
+  @Field(() => StringNullableFilter, {
+    nullable: true,
+  })
+  name?: StringNullableFilter;
+
+  @ApiProperty({
+    required: false,
+    type: StringNullableFilter,
+  })
+  @Type(() => StringNullableFilter)
+  @IsOptional()
+  @Field(() => StringNullableFilter, {
+    nullable: true,
+  })
+  phone?: StringNullableFilter;
 }
 
 export { FarmerWhereInput as FarmerWhereInput };
