@@ -1,0 +1,67 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model FieldModel {
+  createdAt       DateTime                @default(now())
+  cropType        EnumFieldModelCropType?
+  farmer          Farmer?                 @relation(fields: [farmerId], references: [id])
+  farmerId        String?
+  fieldName       String?
+  id              String                  @id @default(cuid())
+  location        Json?
+  satelliteImages SatelliteImage[]
+  updatedAt       DateTime                @updatedAt
+}
+
+model Farmer {
+  createdAt DateTime     @default(now())
+  email     String?
+  fields    FieldModel[]
+  id        String       @id @default(cuid())
+  name      String?
+  phone     String?
+  updatedAt DateTime     @updatedAt
+}
+
+model AnalysisReport {
+  createdAt        DateTime        @default(now())
+  data             Json?
+  id               String          @id @default(cuid())
+  reportDate       DateTime?
+  satelliteImage   SatelliteImage? @relation(fields: [satelliteImageId], references: [id])
+  satelliteImageId String?
+  updatedAt        DateTime        @updatedAt
+}
+
+model SatelliteImage {
+  analysisReports AnalysisReport[]
+  createdAt       DateTime         @default(now())
+  dateCaptured    DateTime?
+  fieldModel      FieldModel?      @relation(fields: [fieldModelId], references: [id])
+  fieldModelId    String?
+  id              String           @id @default(cuid())
+  imageUrl        String?
+  updatedAt       DateTime         @updatedAt
+}
+
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+enum EnumFieldModelCropType {
+  Option1
+}
